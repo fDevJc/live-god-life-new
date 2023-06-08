@@ -3,8 +3,9 @@ package com.godlife.domain.todo;
 import java.time.LocalDate;
 
 public class Period {
-	private LocalDate startDate;
-	private LocalDate endDate;
+
+	private final LocalDate startDate;
+	private final LocalDate endDate;
 
 	private Period(LocalDate startDate, LocalDate endDate) {
 		this.startDate = startDate;
@@ -16,9 +17,9 @@ public class Period {
 	}
 
 	public boolean has(LocalDate date) {
-		if (startDate.isEqual(date)||endDate.isEqual(date)||(startDate.isBefore(date) && endDate.isAfter(date))) {
-			return true;
-		}
-		return false;
+		return date.isEqual(startDate) ||
+			date.isEqual(endDate) ||
+			(date.isAfter(startDate) &&
+			date.isBefore(endDate));
 	}
 }

@@ -1,43 +1,49 @@
 package com.godlife.domain.todo;
 
 import java.time.LocalDate;
-import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
+
+import com.godlife.domain.todo.cycle.DailyCycle;
 
 public class Todo {
-	private Period period;
+	private final Period period;
+
+	private Set<LocalDate> schedules = new HashSet<>();
 	private Cycle cycle;
-	private LocalTime notificationTime;
 
-	private List<Schedule> schedules = new ArrayList<>();
+	public Todo(LocalDate startDate, LocalDate endDate) {
+		this(startDate, endDate, new DailyCycle());
+	}
 
-	public Todo(LocalDate startDate, LocalDate endDate, Cycle cycle, LocalTime notificationTime) {
+	public Todo(LocalDate startDate, LocalDate endDate, Cycle cycle) {
 		this.period = Period.of(startDate, endDate);
 		this.cycle = cycle;
-		this.notificationTime = notificationTime;
 	}
 
 	public void complete(LocalDate date) {
-		if (!period.has(date)) {
-			throw new RuntimeException("기간내 미포함");
-		}
-		Schedule schedule = new Schedule(date);
-		schedule.completed();
-		schedules.add(schedule);
+		validationDate(date);
+		schedules.add(date);
 	}
 
-	public void deComplete(LocalDate date) {
-		schedules.stream()
-			.filter(schedule -> schedule.date().equals(date))
-			.findAny()
-			.ifPresentOrElse(schedule -> schedule.deComplete(), () -> new RuntimeException());
+	public void inComplete(LocalDate date) {
+		validationDate(date);
+		if (isCompleted(date)) {
+			schedules.remove(date);
+		}
 	}
 
 	public boolean isCompleted(LocalDate date) {
-		return schedules.stream()
-			.filter(schedule -> schedule.date().equals(date))
-			.findAny()
-			.get().isCompleted();
+		validationDate(date);
+		return schedules.contains(date);
+	}
+
+	private void validationDate(LocalDate date) {
+		if (!period.has(date)) {
+			throw new RuntimeException("기간내 없습니다");
+		}
+		if (!cycle.has(date)) {
+			throw new RuntimeException("주기에 맞지않습니다");
+		}
 	}
 }

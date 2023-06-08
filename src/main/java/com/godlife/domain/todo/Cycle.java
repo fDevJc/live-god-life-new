@@ -1,4 +1,8 @@
 package com.godlife.domain.todo;
 
-public class Cycle {
+import java.time.LocalDate;
+
+public interface Cycle {
+
+	boolean has(LocalDate targetDate);
 }
