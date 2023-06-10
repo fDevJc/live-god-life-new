@@ -1,5 +1,6 @@
 package com.godlife.unit.domain.todo;
 
+import static java.time.DayOfWeek.*;
 import static org.assertj.core.api.Assertions.*;
 
 import java.time.DayOfWeek;
@@ -29,7 +30,7 @@ public class CycleTest {
 	@Test
 	void weeklyCycleHasTest() throws Exception {
 		//given
-		List<DayOfWeek> dayOfWeeks = List.of(DayOfWeek.MONDAY, DayOfWeek.SATURDAY);
+		List<DayOfWeek> dayOfWeeks = List.of(MONDAY, SATURDAY);
 
 		Cycle cycle = new WeeklyCycle(dayOfWeeks);
 
@@ -71,5 +72,50 @@ public class CycleTest {
 		assertThat(cycle.has(LocalDate.of(2023, 6, 13))).isTrue();
 		assertThat(cycle.has(LocalDate.of(2023, 6, 14))).isFalse();
 		//then
+	}
+
+	@Test
+	void countTest_daily() throws Exception {
+		//given
+		Cycle cycle = new DailyCycle();
+		//when
+		LocalDate startDate = LocalDate.of(2023, 1, 1);
+		LocalDate endDate = LocalDate.of(2023, 12, 31);
+
+		//then
+		assertThat(cycle.count(startDate, endDate)).isEqualTo(365);
+	}
+
+	@Test
+	void countTest_weekly() throws Exception {
+		//given
+		Cycle cycle = new WeeklyCycle(List.of(MONDAY, THURSDAY, FRIDAY));
+
+		//when
+		LocalDate startDate = LocalDate.of(2023, 5, 1);
+		LocalDate endDate = LocalDate.of(2023, 6, 30);
+
+		//then
+		int mondayCount = 5 + 4;
+		int thursdayCount = 4 + 5;
+		int fridayCount = 4 + 5;
+		assertThat(cycle.count(startDate, endDate))
+			.isEqualTo(mondayCount + thursdayCount + fridayCount);
+	}
+
+	@Test
+	void countTest_monthly() throws Exception {
+		//given
+		Cycle cycle = new MonthlyCycle(List.of(31));
+		//when
+		LocalDate startDate = LocalDate.of(2023, 5, 1);
+		LocalDate endDate = LocalDate.of(2023, 7, 31);
+
+		//then
+		int mayCount = 1;
+		int juneCount = 0;
+		int julyCount = 1;
+		assertThat(cycle.count(startDate, endDate))
+			.isEqualTo(mayCount + juneCount + julyCount);
 	}
 }
